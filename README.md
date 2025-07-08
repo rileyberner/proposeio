@@ -1,72 +1,120 @@
-# Getting Started with Create React App
+# Propose IO – Developer README
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Propose IO is a web-based tool for outdoor advertising vendors that automates proposal generation. It helps vendors populate agency media grids and compile creative photo decks with smart AI matching, Google Sheets integration, and photo exports.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🧱 Project Structure
+```
+propose-io/
+├── frontend/             # React-based UI (with Tailwind)
+│   └── src/components/  # Core UI components
+├── backend/              # FastAPI Python backend
+├── output/               # Final Excel/PDF exports
+├── uploads/              # Incoming files/photos
+├── README.md             # Project setup and developer guide
+```
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠 Technologies Used
+- **Frontend**: React, TailwindCSS
+- **Backend**: Python, FastAPI, OpenAI API, Google Sheets API
+- **Export Tools**: `openpyxl`, `FPDF`, `Pillow`
+- **Deployment**: Vercel (frontend), Render or Railway (backend)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🚀 Setup Instructions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. Clone and Navigate
+```bash
+git clone https://github.com/YOUR_USERNAME/propose-io.git
+cd propose-io
+```
 
-### `npm run build`
+### 2. Frontend Setup (React)
+```bash
+cd frontend
+npm install
+npm run dev     # Runs on http://localhost:3000
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Backend Setup (FastAPI)
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload     # Runs on http://localhost:8000
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ⚙️ Core Features
 
-### `npm run eject`
+### ✅ AI-Powered Grid Mapping
+Upload an agency Excel grid → OpenAI matches headers to vendor data.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 📆 Real-Time Availability
+Vendor's Google Sheet is used to confirm unit timing and availability.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 🖼 Photo Export Builder
+Select up to 3 photos per unit → Generates a compressed PDF or PowerPoint photo sheet.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 🔍 Smart Filters
+Users can filter available units/photos by:
+- City
+- Zip Code
+- Neighborhoods (e.g., SoHo, Venice, Williamsburg)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 📦 Compression Settings
+Choose export quality (High, Medium, Low) for the PDF image deck.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🌍 Deployment
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Frontend → Vercel
+- Deploy `/frontend` directly
 
-### Code Splitting
+### Backend → Render or Railway
+- Deploy `/backend`
+- Use `uvicorn main:app --host 0.0.0.0 --port 10000`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 🔐 API Keys Needed
+Create a `.env` in the backend folder:
+```
+OPENAI_API_KEY=your_openai_key_here
+```
+Also include a `credentials.json` from your Google Cloud service account (for Sheets API).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## ✅ Ready to Build
+- Build new UI in `/frontend/src/components`
+- Backend endpoints live in `main.py`
+- Modular logic: `column_mapper.py`, `availability_checker.py`, `export_builder.py`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## 🧑‍💻 Contributing
+- Open to collaborators who want to extend filtering, UI polish, or export features.
+- PRs welcome with clean commit history and working demos.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## 🧠 Maintainer Notes
+This codebase is currently evolving to integrate:
+- Firebase (for backend or hosting)
+- Optimized landing page (React + Tailwind)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+If you're working from YouTube tutorials or live coding, sync your folder structure before deploying.
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# YOURREPO
-# YOURREPO
+**Made with ❤️ for outdoor media innovators.**
+
+Updated 7.7.25 8:29 PM
