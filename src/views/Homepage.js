@@ -1,24 +1,23 @@
 
-// src/Views/HomePage.js
-import React, { useState } from 'react';
-import './Homepage.css';
+// src/views/Homepage.js
+import React from "react";
+import "./Homepage.css";
 
-const HomePage = () => {
-    const [isBlue, setIsBlue] = useState(false);
+export default function Homepage() {
+  return (
+    <div className="homepage-container">
+      <section className="hero-section">
+        <h1>Automate proposal workflow and take back your time.</h1>
+      </section>
 
-    const toggleColor = () => {
-        setIsBlue(!isBlue);
-    };
+      <section className="benefits-section">
+        <p>Proposal.io streamlines media grids, photo decks, location maps, and more.</p>
+        <p>Cut repetitive tasks and focus on the people moving your business forward.</p>
+      </section>
 
-    return (
-        <div className="cafe-homepage">
-            <h1>Welcome to Webcafe AI</h1>
-            <p>Your go-to solution for AI-driven web applications.</p>
-            <div className={`cafe-color-box ${isBlue ? 'cafe-blue' : 'cafe-red'}`}></div>
-            <button className="cafe-button" onClick={toggleColor}>Change Color</button>
-        </div>
-    );
-};
-
-export default HomePage;
-
+      <div className="bottom-cta">
+        <button>Get Started</button>
+      </div>
+    </div>
+  );
+}
