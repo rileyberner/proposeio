@@ -1,10 +1,9 @@
 .homepage {
-  background: linear-gradient(to bottom, white 60%, #ffd6b3 100%);
-  min-height: 100vh;
+  background: white;
   font-family: 'Helvetica Neue', sans-serif;
   color: #001F3F;
-  padding: 0;
   margin: 0;
+  padding: 0;
   position: relative;
 }
 
@@ -18,14 +17,18 @@ nav.nav {
 
 .logo {
   font-weight: bold;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
 }
 
 .menu-button {
-  font-size: 1.5rem;
+  font-size: 4rem;
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.menu-button.large {
+  font-size: 3rem;
 }
 
 .dropdown {
@@ -38,7 +41,7 @@ nav.nav {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   padding: 12px;
-  width: 180px;
+  width: 120px;
   text-align: center;
   z-index: 10;
 }
@@ -57,84 +60,135 @@ nav.nav {
 }
 
 .hero {
-  padding: 120px 40px;
+  padding: 40px 40px 40px;
   text-align: center;
 }
 
 .hero h1 {
-  font-size: 2.6rem;
-  font-weight: 600;
+  font-size: 3.6rem;
+  font-weight: 900;
   margin-bottom: 24px;
 }
 
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1.9rem;
   color: #1A2A3A;
-  line-height: 1.5;
-  margin-bottom: 32px;
+  margin-bottom: 50px;
 }
 
+/* === Shared CTA Button === */
 .cta-button {
-  background: linear-gradient(to right, #002f6c, #005faa);
+  background: linear-gradient(to right, #002f6c, #0074d9);
   color: white;
-  padding: 14px 36px;
-  font-size: 1rem;
+  padding: 18px 42px;
+  font-size: 1.3rem;
+  font-weight: 500;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
 }
 
 .cta-button:hover {
   transform: translateY(-2px);
 }
 
-.features-section {
-  padding: 80px 40px;
-  text-align: center;
-  background-color: white;
-  color: #001F3F;
-}
-
-.features-section h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
-.features-section p {
-  font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* === Page 2 (Image + Text Side-by-Side) === */
 .page2 {
-  display: flex;
-  align-items: center;
-  padding: 80px 40px;
-  gap: 40px;
   background-color: white;
-  flex-wrap: wrap;
+  padding: 60px 40px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .page2-image {
-  width: 100%;
-  max-width: 500px;
+  width: 70%;
+  max-width: 960px;
+  margin-bottom: 100px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.page2-text {
-  flex: 1;
-  min-width: 280px;
-}
-
 .page2-text h2 {
-  font-size: 2rem;
-  margin-bottom: 16px;
-  color: #001F3F;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
-.page2-text
+.page2-text p {
+  font-size: 2.2rem;
+  margin-bottom: 45px;
+}
+
+/* === Bottom CTA Button Specific Styling === */
+.cta-button-large {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #002f6c, #007bff); /* Navy to blue */
+  color: white;
+  font-weight: 700;
+  font-size: 2rem;
+  padding: 10px 36px;
+  width: 100%;
+  max-width: 300px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-align: left;
+  text-decoration: none;
+  margin-bottom: 50px;
+}
+
+.cta-button-large:hover {
+  transform: translateY(-2px);
+}
+
+.cta-button-large .arrow {
+  font-size: 3rem;
+  margin-left: auto;
+}
+
+/* === Footer Section === */
+.footer {
+  background-color: #fffdfb;
+  color: white;
+  padding: 37px 70px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 30px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-text {
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.2;
+  background: linear-gradient(90deg, #002f6c, #0066cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  max-width: 600px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 50px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.footer-links a {
+  color: #002f6c;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-links a:hover {
+  opacity: 0.7;
+}
