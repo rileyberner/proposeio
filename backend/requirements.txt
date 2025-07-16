@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+fpdf
+openpyxl
+pillow
+gspread
+oauth2client
+openai
