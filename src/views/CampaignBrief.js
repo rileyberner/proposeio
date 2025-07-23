@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { ProposalContext } from "../context/ProposalContext";
 import config from "../config";
 import * as XLSX from "xlsx";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
 // Initialize Firebase
@@ -29,10 +29,11 @@ export default function CampaignBrief() {
   const [loading, setLoading] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
   const [masterVendorData, setMasterVendorData] = useState([]);
-  const [manualMarkets, setManualMarkets] = useState([]);
-  const [manualNeighborhoods, setManualNeighborhoods] = useState([]);
-  const [manualFormats, setManualFormats] = useState([]);
-  const [manualDates, setManualDates] = useState({ start: "", end: "" });
+  const [lastUploadedInfo, setLastUploadedInfo] = useState(null);
+  const [manualMarkets, setManualMarkets] = useState(campaignBrief.manualMarkets || []);
+  const [manualNeighborhoods, setManualNeighborhoods] = useState(campaignBrief.manualNeighborhoods || []);
+  const [manualFormats, setManualFormats] = useState(campaignBrief.manualFormats || []);
+  const [manualDates, setManualDates] = useState(campaignBrief.manualDates || { start: "", end: "" });
 
   const gridInUse = campaignBrief.gridFile ? campaignBrief.gridFile.name : selectedTemplate;
 
@@ -52,6 +53,8 @@ export default function CampaignBrief() {
     try {
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
+      const timestamp = new Date().toLocaleString();
+      setLastUploadedInfo({ name: file.name, time: timestamp });
       console.log("Uploaded to Firebase Storage:", downloadURL);
     } catch (err) {
       console.error("Upload failed:", err);
@@ -82,6 +85,16 @@ export default function CampaignBrief() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    setCampaignBrief({
+      ...campaignBrief,
+      manualMarkets,
+      manualNeighborhoods,
+      manualFormats,
+      manualDates,
+    });
+  }, [manualMarkets, manualNeighborhoods, manualFormats, manualDates]);
 
   const uniqueMarkets = [...new Set(masterVendorData.map(row => row.Market || row.market).filter(Boolean))];
   const uniqueFormats = [...new Set(masterVendorData.map(row => row.Format || row.format).filter(Boolean))];
@@ -152,6 +165,12 @@ export default function CampaignBrief() {
       <p style={{ marginTop: "1rem" }}>
         <strong>Active Grid:</strong> {gridInUse}
       </p>
+
+      {lastUploadedInfo && (
+        <p style={{ color: "gray", fontSize: "0.9rem" }}>
+          Last uploaded: <strong>{lastUploadedInfo.name}</strong> at {lastUploadedInfo.time}
+        </p>
+      )}
 
       <hr style={{ margin: "2rem 0" }} />
 
