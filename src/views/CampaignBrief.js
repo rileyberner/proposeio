@@ -105,11 +105,32 @@ export default function CampaignBrief() {
 
   const uniqueNeighborhoods = [...new Set(allNeighborhoods.filter((v, i, a) => a.indexOf(v) === i))];
 
-  const toggleSelection = (value, currentList, setter) => {
+  const toggleSelection = (value, currentList, setter, isMarket = false) => {
+    let updatedList;
     if (currentList.includes(value)) {
-      setter(currentList.filter((item) => item !== value));
+      // If already selected, remove it
+      updatedList = currentList.filter((item) => item !== value);
+      setter(updatedList);
+      if (isMarket) {
+        // Recalculate neighborhoods from remaining selected markets
+        const allNeighborhoods = masterVendorData
+          .filter(row => updatedList.includes(row.Market || row.market))
+          .map(row => row.Neighborhood || row.Submarket || row.neighborhood || row.submarket)
+          .filter(Boolean);
+        setManualNeighborhoods([...new Set(allNeighborhoods)]);
+      }
     } else {
-      setter([...currentList, value]);
+      // Add new market
+      updatedList = [...currentList, value];
+      setter(updatedList);
+      if (isMarket) {
+        // Get all neighborhoods for the newly added market and add them
+        const newNeighborhoods = masterVendorData
+          .filter(row => (row.Market || row.market) === value)
+          .map(row => row.Neighborhood || row.Submarket || row.neighborhood || row.submarket)
+          .filter(Boolean);
+        setManualNeighborhoods(prev => [...new Set([...prev, ...newNeighborhoods])]);
+      }
     }
   };
 
@@ -189,7 +210,7 @@ export default function CampaignBrief() {
               <div
                 key={market}
                 style={listItemStyle(manualMarkets.includes(market))}
-                onClick={() => toggleSelection(market, manualMarkets, setManualMarkets)}
+                onClick={() => toggleSelection(market, manualMarkets, setManualMarkets, true)}
               >
                 {market}
               </div>
