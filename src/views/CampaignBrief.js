@@ -28,7 +28,7 @@ export default function CampaignBrief() {
   const [selectedTemplate, setSelectedTemplate] = useState("Overall Murals Proposal Grid (2025)");
   const [loading, setLoading] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
-  const [masterVendorData, setMasterVendorData] = useState([]);
+  const { masterVendorData, setMasterVendorData } = useContext(ProposalContext);
   const [lastUploadedInfo, setLastUploadedInfo] = useState(null);
   const [manualMarkets, setManualMarkets] = useState(campaignBrief.manualMarkets || []);
   const [manualNeighborhoods, setManualNeighborhoods] = useState(campaignBrief.manualNeighborhoods || []);

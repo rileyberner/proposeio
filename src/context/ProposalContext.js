@@ -5,14 +5,21 @@ export const ProposalContext = createContext();
 
 export const ProposalProvider = ({ children }) => {
   const [campaignBrief, setCampaignBrief] = useState({
-  clientEmail: "",
-  market: "",
-  submarket: "",
-  flightDates: { start: "", end: "" },
-  gridFile: null,
-  objectives: "", // <--- ADD THIS
-});
+    clientEmail: "",
+    market: "",
+    submarket: "",
+    flightDates: { start: "", end: "" },
+    gridFile: null,
+    objectives: "",
+    manualMarkets: [],
+    manualNeighborhoods: [],
+    manualFormats: [],
+    manualDates: { start: "", end: "" },
+  });
+
   const [selectedUnits, setSelectedUnits] = useState([]);
+  const [unitEdits, setUnitEdits] = useState({});
+  const [masterVendorData, setMasterVendorData] = useState([]);
 
   return (
     <ProposalContext.Provider
@@ -21,6 +28,10 @@ export const ProposalProvider = ({ children }) => {
         setCampaignBrief,
         selectedUnits,
         setSelectedUnits,
+        unitEdits,
+        setUnitEdits,
+        masterVendorData,
+        setMasterVendorData,
       }}
     >
       {children}

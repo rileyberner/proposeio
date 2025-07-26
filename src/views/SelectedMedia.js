@@ -2,6 +2,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ProposalContext } from "../context/ProposalContext";
 
+console.log("🔥 SelectedMedia.js is running"); // ADD THIS
+
 export default function SelectedMedia() {
   const {
     masterVendorData,
@@ -15,40 +17,38 @@ export default function SelectedMedia() {
   const [filteredUnits, setFilteredUnits] = useState([]);
 
 useEffect(() => {
+  console.log("📂 masterVendorData length:", masterVendorData?.length);
   if (!masterVendorData || masterVendorData.length === 0) return;
 
-  const normalize = (val) => (val || "").toString().trim().toLowerCase();
+    const normalize = (val) => (val || "").toString().trim().toLowerCase();
+    const selectedMarkets = campaignBrief.manualMarkets.map(normalize);
+    const selectedNeighborhoods = campaignBrief.manualNeighborhoods.map(normalize);
+    const selectedFormats = campaignBrief.manualFormats.map(normalize);
 
-  const selectedMarkets = campaignBrief.manualMarkets.map(normalize);
-  const selectedNeighborhoods = campaignBrief.manualNeighborhoods.map(normalize);
-  const selectedFormats = campaignBrief.manualFormats.map(normalize);
+    const filtered = masterVendorData.filter((row) => {
+      const market = normalize(row.Market || row.market);
+      const neighborhood = normalize(
+        row.Neighborhood || row.Submarket || row.neighborhood || row.submarket
+      );
+      const format = normalize(row.Format || row.format);
+      return (
+        selectedMarkets.includes(market) &&
+        selectedNeighborhoods.includes(neighborhood) &&
+        selectedFormats.includes(format)
+      );
+    });
+      console.log("🧪 Sample row from masterVendorData:", masterVendorData[0]);
+      console.log("📌 Brief filters:", {
+        markets: campaignBrief.manualMarkets,
+        neighborhoods: campaignBrief.manualNeighborhoods,
+        formats: campaignBrief.manualFormats,
+      });
+      console.log("✅ Filtered units:", filtered.length);
 
-  const filtered = masterVendorData.filter((row) => {
-    const market = normalize(row.Market || row.market);
-    const neighborhood = normalize(
-      row.Neighborhood || row.Submarket || row.neighborhood || row.submarket
-    );
-    const format = normalize(row.Format || row.format);
-
-    return (
-      selectedMarkets.includes(market) &&
-      selectedNeighborhoods.includes(neighborhood) &&
-      selectedFormats.includes(format)
-    );
-  });
-
-  console.log("✅ Filtered units:", filtered.length);
-  console.log("🧪 Sample row from masterVendorData:", masterVendorData[0]);
-  console.log("📌 Brief:", {
-    manualMarkets: campaignBrief.manualMarkets,
-    manualNeighborhoods: campaignBrief.manualNeighborhoods,
-    manualFormats: campaignBrief.manualFormats,
-  });
-
-  setFilteredUnits(filtered);
-  const ids = filtered.map((row) => row.UnitID || row["Unit ID"]);
-  setSelectedUnits(ids); // pre-select units
-}, [campaignBrief, masterVendorData]);
+    setFilteredUnits(filtered);
+    const ids = filtered.map((row) => row["Unit ID"] || row.UnitID);
+    setSelectedUnits(ids); // preselect
+  }, [campaignBrief, masterVendorData]);
 
   const toggleUnit = (id) => {
     if (selectedUnits.includes(id)) {
@@ -59,19 +59,15 @@ useEffect(() => {
   };
 
   const toggleAll = () => {
-    const allIds = filteredUnits.map((row) => row.UnitID || row["Unit ID"]);
+    const allIds = filteredUnits.map((row) => row["Unit ID"]);
     const isAllSelected = allIds.every((id) => selectedUnits.includes(id));
-    if (isAllSelected) {
-      setSelectedUnits([]);
-    } else {
-      setSelectedUnits(allIds);
-    }
+    setSelectedUnits(isAllSelected ? [] : allIds);
   };
 
   const formatCurrency = (value) => {
-    const number = parseFloat(value);
-    if (isNaN(number)) return "$0.00";
-    return `$${number.toFixed(2)}`;
+    const num = parseFloat(value?.toString().replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return "$0.00";
+    return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
   };
 
   const handleEdit = (unitId, field, value) => {
@@ -103,7 +99,7 @@ useEffect(() => {
                   checked={
                     filteredUnits.length > 0 &&
                     filteredUnits.every((row) =>
-                      selectedUnits.includes(row.UnitID || row["Unit ID"])
+                      selectedUnits.includes(row["Unit ID"])
                     )
                   }
                   onChange={toggleAll}
@@ -121,7 +117,7 @@ useEffect(() => {
           </thead>
           <tbody>
             {filteredUnits.map((row) => {
-              const id = row.UnitID || row["Unit ID"];
+              const id = row["Unit ID"];
               return (
                 <tr key={id} style={{ borderBottom: "1px solid #ddd" }}>
                   <td>
@@ -149,29 +145,25 @@ useEffect(() => {
                   <td>
                     <input
                       type="text"
-                      value={formatCurrency(
-                        getValue(id, "rateCard", row["Rate Card Cost"] || row["RateCardCost"])
-                      )}
+                      value={formatCurrency(getValue(id, "rateCard", row["Rate Card"]))}
                       onChange={(e) =>
                         handleEdit(id, "rateCard", e.target.value.replace(/[^\d.]/g, ""))
                       }
                     />
                   </td>
                   <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(
-                        getValue(id, "negotiated", row["Negotiated Media Cost"])
-                      )}
-                      onChange={(e) =>
-                        handleEdit(id, "negotiated", e.target.value.replace(/[^\d.]/g, ""))
-                      }
-                    />
-                  </td>
+                  <input
+                    type="text"
+                    value={formatCurrency(getValue(id, "negotiated", row["Negotaiaetd Media"] || row["Negotiated Media"]))}
+                    onChange={(e) =>
+                      handleEdit(id, "negotiated", e.target.value.replace(/[^\d.]/g, ""))
+                    }
+                  />
+                </td>
                   <td>
                     <input
                       type="text"
-                      value={formatCurrency(getValue(id, "install", row["Install Cost"]))}
+                      value={formatCurrency(getValue(id, "install", row["Install"]))}
                       onChange={(e) =>
                         handleEdit(id, "install", e.target.value.replace(/[^\d.]/g, ""))
                       }
@@ -180,7 +172,7 @@ useEffect(() => {
                   <td>
                     <input
                       type="text"
-                      value={formatCurrency(getValue(id, "production", row["Production Cost"]))}
+                      value={formatCurrency(getValue(id, "production", row["Production"]))}
                       onChange={(e) =>
                         handleEdit(id, "production", e.target.value.replace(/[^\d.]/g, ""))
                       }
@@ -189,7 +181,7 @@ useEffect(() => {
                   <td>
                     <textarea
                       style={{ width: "100%", maxHeight: "4rem" }}
-                      value={getValue(id, "rationale", row.Rationale || "")}
+                      value={getValue(id, "rationale", row["Rationale"] || "")}
                       onChange={(e) => handleEdit(id, "rationale", e.target.value)}
                     />
                   </td>
@@ -202,5 +194,3 @@ useEffect(() => {
     </div>
   );
 }
-
-
