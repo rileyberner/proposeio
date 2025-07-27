@@ -45,32 +45,26 @@ export default function CampaignBrief() {
     setCampaignBrief({ ...campaignBrief, gridFile: e.target.files[0] });
   };
 
-  const handleMasterVendorUpload = async (e) => {
+  const handleMasterVendorUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
-    const storageRef = ref(storage, `vendor_grids/${file.name}`);
-
-    try {
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      const timestamp = new Date().toLocaleString();
-      setLastUploadedInfo({ name: file.name, time: timestamp });
-      console.log("Uploaded to Firebase Storage:", downloadURL);
-    } catch (err) {
-      console.error("Upload failed:", err);
-    }
-
     reader.onload = (event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-      const parsedData = XLSX.utils.sheet_to_json(worksheet);
-      setMasterVendorData(parsedData);
-      localStorage.setItem("masterVendorData", JSON.stringify(parsedData));
+      const rawRows = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: "" });
+      const cleanedData = rawRows.map((row) => {
+        const cleanedRow = {};
+        Object.entries(row).forEach(([key, val]) => {
+          cleanedRow[key.trim()] = val;
+        });
+        return cleanedRow;
+      });
+      setMasterVendorData(cleanedData);
+      localStorage.setItem("masterVendorData", JSON.stringify(cleanedData));
       alert("✅ Master Vendor Grid uploaded and saved.");
     };
-
     reader.readAsArrayBuffer(file);
   };
 
@@ -102,17 +96,14 @@ export default function CampaignBrief() {
     .filter(row => manualMarkets.includes(row.Market || row.market))
     .map(row => row.Neighborhood || row.Submarket || row.neighborhood || row.submarket)
     .filter(Boolean);
-
   const uniqueNeighborhoods = [...new Set(allNeighborhoods.filter((v, i, a) => a.indexOf(v) === i))];
 
   const toggleSelection = (value, currentList, setter, isMarket = false) => {
     let updatedList;
     if (currentList.includes(value)) {
-      // If already selected, remove it
       updatedList = currentList.filter((item) => item !== value);
       setter(updatedList);
       if (isMarket) {
-        // Recalculate neighborhoods from remaining selected markets
         const allNeighborhoods = masterVendorData
           .filter(row => updatedList.includes(row.Market || row.market))
           .map(row => row.Neighborhood || row.Submarket || row.neighborhood || row.submarket)
@@ -120,11 +111,9 @@ export default function CampaignBrief() {
         setManualNeighborhoods([...new Set(allNeighborhoods)]);
       }
     } else {
-      // Add new market
       updatedList = [...currentList, value];
       setter(updatedList);
       if (isMarket) {
-        // Get all neighborhoods for the newly added market and add them
         const newNeighborhoods = masterVendorData
           .filter(row => (row.Market || row.market) === value)
           .map(row => row.Neighborhood || row.Submarket || row.neighborhood || row.submarket)
@@ -160,10 +149,19 @@ export default function CampaignBrief() {
     <div style={{ padding: "2rem", paddingBottom: "4rem" }}>
       <h1 style={{ color: "#0a225f" }}>Campaign Brief</h1>
 
-      <br />
-      <label>Upload Media Grid</label>
-      <br />
-      <input type="file" onChange={handleFileChange} />
+      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+        <div style={{ flex: 1 }}>
+          <label>Upload Media Grid</label>
+          <br />
+          <input type="file" onChange={handleFileChange} />
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <label>Master Vendor File</label>
+          <br />
+          <input type="file" accept=".xlsx,.csv" onChange={handleMasterVendorUpload} />
+        </div>
+      </div>
 
       <div style={{ marginTop: "1rem" }}>
         <label>Or Select Saved Media Grid</label>
@@ -171,7 +169,7 @@ export default function CampaignBrief() {
         <select
           value={selectedTemplate}
           onChange={(e) => setSelectedTemplate(e.target.value)}
-          style={{ width: "60%", padding: "0.5rem" }}
+          style={{ width: "30%", padding: "0.5rem" }}
         >
           {savedTemplates
             .sort((a, b) => (b.isVendorDefault ? -1 : 1))
@@ -187,19 +185,8 @@ export default function CampaignBrief() {
         <strong>Active Grid:</strong> {gridInUse}
       </p>
 
-      {lastUploadedInfo && (
-        <p style={{ color: "gray", fontSize: "0.9rem" }}>
-          Last uploaded: <strong>{lastUploadedInfo.name}</strong> at {lastUploadedInfo.time}
-        </p>
-      )}
-
       <hr style={{ margin: "2rem 0" }} />
 
-      <h2 style={{ color: "#0a225f" }}>Master Vendor File</h2>
-      <p>Upload a full inventory sheet (like Unified_Master_Grid_Template.xlsx) to power filtering and media selection.</p>
-      <input type="file" accept=".xlsx,.csv" onChange={handleMasterVendorUpload} />
-
-      <hr style={{ margin: "2rem 0" }} />
       <h2 style={{ color: "#0a225f" }}>Manual Input</h2>
 
       <div style={{ display: "flex", gap: "2rem" }}>

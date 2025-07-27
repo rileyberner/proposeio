@@ -1,4 +1,3 @@
-// src/views/ProposalBuilder.js
 import React, { useState } from "react";
 import CampaignBrief from "./CampaignBrief";
 import SelectedMedia from "./SelectedMedia";
@@ -34,25 +33,58 @@ export default function ProposalBuilder() {
     }
   };
 
+  const handleNewProposal = () => {
+    const confirmed = window.confirm("Are you sure you want to start a new proposal?");
+    if (confirmed) {
+      const masterData = localStorage.getItem("masterVendorData");
+      localStorage.clear();
+      if (masterData) {
+        localStorage.setItem("masterVendorData", masterData);
+      }
+      window.location.reload();
+          }
+      };
+
   return (
     <div>
-      <div style={{ display: "flex", borderBottom: "2px solid #eee", marginBottom: "1rem" }}>
-        {tabs.map((label, index) => (
-          <div
-            key={label}
-            onClick={() => setActiveTab(index)}
-            style={{
-              padding: "1rem",
-              cursor: "pointer",
-              fontWeight: activeTab === index ? "bold" : "normal",
-              color: activeTab === index ? "#0a225f" : "#666",
-              borderBottom: activeTab === index ? "3px solid #0a225f" : "none"
-            }}
-          >
-            {index + 1}. {label}
-          </div>
-        ))}
+      {/* Header with Tabs and New Proposal button */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #eee", marginBottom: "1rem" }}>
+        <div style={{ display: "flex" }}>
+          {tabs.map((label, index) => (
+            <div
+              key={label}
+              onClick={() => setActiveTab(index)}
+              style={{
+                padding: "1rem",
+                cursor: "pointer",
+                fontWeight: activeTab === index ? "bold" : "normal",
+                color: activeTab === index ? "rgba(10, 34, 95, 1)" : "#666",
+                borderBottom: activeTab === index ? "3px solid #0a225f" : "none"
+              }}
+            >
+              {index + 1}. {label}
+            </div>
+          ))}
+        </div>
+
+        {/* Top-right Button */}
+        <button
+          onClick={handleNewProposal}
+          style={{
+            marginRight: "1.5rem",
+            background: "#ff6600",
+            color: "#fff",
+            padding: "0.6rem 1.2rem",
+            border: 'none',
+            borderRadius: "24px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          New Proposal
+        </button>
       </div>
+
       <div>{renderTab()}</div>
     </div>
   );
