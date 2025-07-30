@@ -33,17 +33,23 @@ export default function ProposalBuilder() {
     }
   };
 
-  const handleNewProposal = () => {
-    const confirmed = window.confirm("Are you sure you want to start a new proposal?");
-    if (confirmed) {
-      const masterData = localStorage.getItem("masterVendorData");
-      localStorage.clear();
-      if (masterData) {
-        localStorage.setItem("masterVendorData", masterData);
+    const handleNewProposal = () => {
+      const confirmed = window.confirm("Are you sure you want to start a new proposal?");
+      if (confirmed) {
+        const masterData = localStorage.getItem("masterVendorData");
+        const defaultGrid = localStorage.getItem("selectedTemplate");
+
+        localStorage.clear();
+
+        if (masterData) {
+          localStorage.setItem("masterVendorData", masterData);
+        }
+        if (defaultGrid) {
+          localStorage.setItem("selectedTemplate", defaultGrid);
+        }
+        window.location.reload(); // ← Don't forget this
       }
-      window.location.reload();
-          }
-      };
+    }; //
 
   return (
     <div>

@@ -16,47 +16,42 @@ export default function SelectedMedia() {
 
   const [filteredUnits, setFilteredUnits] = useState([]);
 
-  useEffect(() => {
-    if (!masterVendorData || masterVendorData.length === 0) return;
+useEffect(() => {
+  if (!masterVendorData || masterVendorData.length === 0) return;
 
-    const normalize = (val) => (val || "").toString().trim().toLowerCase();
-    const selectedMarkets = campaignBrief.manualMarkets.map(normalize);
-    const selectedNeighborhoods = campaignBrief.manualNeighborhoods.map(normalize);
-    const selectedFormats = campaignBrief.manualFormats.map(normalize);
+  const normalize = (val) => (val || "").toString().trim().toLowerCase();
+  const selectedMarkets = campaignBrief.manualMarkets.map(normalize);
+  const selectedNeighborhoods = campaignBrief.manualNeighborhoods.map(normalize);
+  const selectedFormats = campaignBrief.manualFormats.map(normalize);
 
-    const filtered = masterVendorData.filter((row) => {
-      const market = normalize(row.Market || row.market);
-      const neighborhood = normalize(
-        row.Neighborhood || row.Submarket || row.neighborhood || row.submarket
-      );
-      const format = normalize(row.Format || row.format);
-      return (
-        selectedMarkets.includes(market) &&
-        selectedNeighborhoods.includes(neighborhood) &&
-        selectedFormats.includes(format)
-      );
-    });
+  const filtered = masterVendorData.filter((row) => {
+    const market = normalize(row.Market || row.market);
+    const neighborhood = normalize(
+      row.Neighborhood || row.Submarket || row.neighborhood || row.submarket
+    );
+    const format = normalize(row.Format || row.format);
+    return (
+      selectedMarkets.includes(market) &&
+      selectedNeighborhoods.includes(neighborhood) &&
+      selectedFormats.includes(format)
+    );
+  });
 
-    setFilteredUnits(filtered);
+  setFilteredUnits(filtered);
 
-    const savedSelections = localStorage.getItem("selectedUnits");
-    if (savedSelections) {
-      setSelectedUnits(JSON.parse(savedSelections));
-    } else {
-      const ids = filtered.map((row) => row["Unit ID"] || row.UnitID);
-      setSelectedUnits(ids);
-    }
-  }, [campaignBrief, masterVendorData]);
-
-  useEffect(() => {
-    localStorage.setItem("selectedUnits", JSON.stringify(selectedUnits));
-  }, [selectedUnits]);
+  // ✅ Only auto-select if nothing is selected yet
+  if (selectedUnits.length === 0) {
+    const ids = filtered.map((row) => row["Unit ID"] || row.UnitID);
+    setSelectedUnits(ids);
+  }
+}, [campaignBrief, masterVendorData]);
 
   const toggleUnit = (id) => {
-    const updated = selectedUnits.includes(id)
-      ? selectedUnits.filter((uid) => uid !== id)
-      : [...selectedUnits, id];
-    setSelectedUnits(updated);
+    if (selectedUnits.includes(id)) {
+      setSelectedUnits(selectedUnits.filter((uid) => uid !== id));
+    } else {
+      setSelectedUnits([...selectedUnits, id]);
+    }
   };
 
   const toggleAll = () => {
@@ -80,36 +75,6 @@ export default function SelectedMedia() {
       },
     }));
   };
-
-  const resetProposal = () => {
-    const confirmed = window.confirm("Are you sure you want to start a new proposal?");
-    if (!confirmed) return;
-    localStorage.removeItem("selectedUnits");
-    setSelectedUnits([]);
-    setUnitEdits({});
-  };
-
-  useEffect(() => {
-    const button = document.createElement("button");
-    button.innerText = "New Proposal";
-    Object.assign(button.style, {
-      position: "fixed",
-      top: "20px",
-      right: "20px",
-      zIndex: 9999,
-      padding: "0.6rem 1.2rem",
-      backgroundColor: "#ff6600",
-      color: "white",
-      border: "none",
-      borderRadius: "20px",
-      fontWeight: "bold",
-      cursor: "pointer",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.15)"
-    });
-    button.onclick = resetProposal;
-    document.body.appendChild(button);
-    return () => document.body.removeChild(button);
-  }, []);
 
   return (
     <div style={{ padding: "2rem" }}>

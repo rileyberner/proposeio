@@ -3,20 +3,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { ProposalContext } from "../context/ProposalContext";
 import config from "../config";
 import * as XLSX from "xlsx";
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
-import { initializeApp } from "firebase/app";
-
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+import { storage } from "../firebase";
 
 export default function CampaignBrief() {
   const { campaignBrief, setCampaignBrief } = useContext(ProposalContext);
