@@ -1,23 +1,27 @@
 // src/views/ImageSelection.js
 import React, { useContext, useState, useEffect } from "react";
 import { ProposalContext } from "../context/ProposalContext";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+  listAll
+} from "firebase/storage";
 import { storage } from "../firebase";
 
 export default function ImageSelection() {
   const { selectedUnits } = useContext(ProposalContext);
-  const [pdfUploads, setPdfUploads] = useState({});
-  const [selectedPdfs, setSelectedPdfs] = useState({});
+  const [pdfUploads, setPdfUploads] = useState(() => {
+    const stored = localStorage.getItem("pdfUploads");
+    return stored ? JSON.parse(stored) : {};
+  });
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const storedUploads = localStorage.getItem("pdfUploads");
-    const storedSelections = localStorage.getItem("selectedPdfs");
-    if (storedUploads) setPdfUploads(JSON.parse(storedUploads));
-    if (storedSelections) setSelectedPdfs(JSON.parse(storedSelections));
-  }, []);
+  const [selectedPdfs, setSelectedPdfs] = useState(() => {
+    const stored = localStorage.getItem("selectedPdfs");
+    return stored ? JSON.parse(stored) : {};
+  });
 
-  // Persist changes
   useEffect(() => {
     localStorage.setItem("pdfUploads", JSON.stringify(pdfUploads));
   }, [pdfUploads]);
@@ -26,34 +30,61 @@ export default function ImageSelection() {
     localStorage.setItem("selectedPdfs", JSON.stringify(selectedPdfs));
   }, [selectedPdfs]);
 
+  useEffect(() => {
+    const fetchUploads = async () => {
+      const uploads = {};
+      for (const unitId of selectedUnits) {
+        const folderRef = ref(storage, `unit_files/${unitId}`);
+        try {
+          const list = await listAll(folderRef);
+          const files = await Promise.all(
+            list.items.map(async (itemRef) => {
+              const url = await getDownloadURL(itemRef);
+              return { name: itemRef.name, url };
+            })
+          );
+          uploads[unitId] = files;
+        } catch (err) {
+          console.warn(`No files for ${unitId}`, err);
+        }
+      }
+      setPdfUploads(uploads);
+    };
+    fetchUploads();
+  }, [selectedUnits]);
+
   const handleFileUpload = async (unitId, files) => {
     const newFiles = Array.from(files);
-    const uploadedFiles = [];
+    const uploads = [];
 
     for (let file of newFiles) {
+      if (file.type !== "application/pdf") continue;
       try {
         const storageRef = ref(storage, `unit_files/${unitId}/${file.name}`);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
-        uploadedFiles.push({ name: file.name, url });
-        console.log("✅ Uploaded:", file.name, "→", url);
+        uploads.push({ name: file.name, url });
       } catch (err) {
-        console.error("❌ Upload error for", file.name, err);
+        console.error("Upload error for", file.name, err);
       }
     }
 
-    if (uploadedFiles.length > 0) {
-      setPdfUploads((prev) => {
-        const combined = [...(prev[unitId] || []), ...uploadedFiles];
-        const unique = Array.from(new Map(combined.map(f => [f.name, f])).values());
-        const updated = { ...prev, [unitId]: unique };
-        console.log("📦 Updated pdfUploads:", updated);
-        return updated;
-      });
+    try {
+      const folderRef = ref(storage, `unit_files/${unitId}`);
+      const list = await listAll(folderRef);
+      const filesWithUrl = await Promise.all(
+        list.items.map(async (itemRef) => {
+          const url = await getDownloadURL(itemRef);
+          return { name: itemRef.name, url };
+        })
+      );
+      setPdfUploads((prev) => ({
+        ...prev,
+        [unitId]: filesWithUrl,
+      }));
+    } catch (err) {
+      console.error("Error refreshing uploaded file list:", err);
     }
-
-    const input = document.querySelector(`input[data-unit="${unitId}"]`);
-    if (input) input.value = "";
   };
 
   const togglePdfSelection = (unitId, fileName) => {
@@ -72,12 +103,10 @@ export default function ImageSelection() {
       const path = `unit_files/${unitId}/${fileObj.name}`;
       const fileRef = ref(storage, path);
       await deleteObject(fileRef);
-
       setPdfUploads((prev) => {
         const updated = (prev[unitId] || []).filter((f) => f.name !== fileObj.name);
         return { ...prev, [unitId]: updated };
       });
-
       setSelectedPdfs((prev) => {
         const updated = (prev[unitId] || []).filter((f) => f !== fileObj.name);
         return { ...prev, [unitId]: updated };
@@ -101,15 +130,14 @@ export default function ImageSelection() {
         >
           <h3 style={{ color: "#0a225f", marginBottom: "0.5rem" }}>{unitId}</h3>
 
-          <p style={{ fontSize: "0.8rem", color: "gray" }}>
-            Debug: {JSON.stringify(pdfUploads[unitId])}
-          </p>
+          <label style={{ display: "block", fontWeight: "bold", marginBottom: "0.5rem" }}>
+            Upload PDF Deck(s)
+          </label>
 
           <input
             type="file"
             accept="application/pdf"
             multiple
-            data-unit={unitId}
             onChange={(e) => handleFileUpload(unitId, e.target.files)}
             style={{ marginBottom: "1rem" }}
           />
@@ -138,12 +166,14 @@ export default function ImageSelection() {
                 }}
                 onClick={() => togglePdfSelection(unitId, fileObj.name)}
               >
-                <p style={{ margin: 0, fontWeight: "bold", fontSize: "0.95rem" }}>{fileObj.name}</p>
-                <iframe
-                  src={fileObj.url + "#toolbar=0&view=FitH"}
-                  style={{ width: "100%", height: "180px", marginTop: "0.5rem", border: "none" }}
-                  title={`Preview-${fileObj.name}`}
-                />
+                <a
+                  href={fileObj.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: "0.85rem", color: "#0077cc", textDecoration: "none" }}
+                >
+                  View PDF
+                </a>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
